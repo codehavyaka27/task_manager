@@ -15,7 +15,7 @@ public class TaskController {
     public TaskController(TaskService taskService){
         this.taskService=taskService;
     }
-
+    @PostMapping
     public Task addTask(@RequestBody Task task){
         return taskService.addTask(task.getTaskTitle());
     }

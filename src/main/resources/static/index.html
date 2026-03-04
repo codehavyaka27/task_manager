@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Todo App</title>
+    <style>
+        body{
+            font-family: Arial;
+            width: 400px;
+            margin:40px auto;
+        }
+        input{
+            width:70%;
+            padding:8px;
+        }
+        button{
+            padding: 8px;
+            cursor:pointer;
+        }
+        li{
+            margin:10px 0;
+        }
+        #taskList {
+            list-style-type: decimal;
+        }
+        .completed{
+            text-decoration: line-through;
+            color: grey;
+        }
+    </style>
+</head>
+<body>
+<h2>TODO APP</h2>
+<input type="text" id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+<ol id="taskList" type="1"></ol>
+
+<script>
+    const API="/tasks";
+
+    function loadTasks(){
+        fetch(API)
+            .then(response=>response.json())
+            .then(tasks=>{
+                const list=document.getElementById("taskList");
+                list.innerHTML="";
+
+                tasks.forEach(task=>{
+                    const li=document.createElement("li");
+
+                    li.innerHTML=`
+                    <span class="${task.taskStatus ?'completed':''}">
+                        ${task.taskTitle}
+                    </span>
+                    <button onClick="toggleTask(${task.taskId})">👍👍👍</button>
+                    <button onClick="deleteTask(${task.taskId})">❌❌</button>
+                    `;
+                    list.appendChild(li);
+                });
+            });
+    }
+
+    function addTask(){
+        const title=document.getElementById("taskInput").value;
+
+        fetch(API,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({taskTitle:title})
+        })
+            .then(()=>{
+                document.getElementById("taskInput").value="";
+                loadTasks();
+            });
+    }
+
+    function deleteTask(id) {
+        fetch(API + "/" + id, {
+            method: "DELETE"
+        })
+            .then(() => loadTasks());
+
+    }
+
+    function toggleTask(id){
+        fetch(API+"/"+id,{
+            method:"PUT"
+        })
+            .then(()=>loadTasks());
+    }
+    loadTasks();
+
+</script>
+
+</body>
+</html>
